@@ -1,6 +1,7 @@
 using System.Net;
 using System.IO;
 using System.Threading.Tasks;
+using System;
 
 namespace Bakalari
 {
@@ -15,6 +16,16 @@ namespace Bakalari
             {
                 return await reader.ReadToEndAsync();
             }
+        }
+
+        public static string ToLongType(this UserType type)
+        {
+            if (type == UserType.Student)
+                return "žák";
+            else if (type == UserType.Parent)
+                return "rodič";
+            else
+                throw new ArgumentNullException("type", "The argument cannot be null");
         }
     }
 }

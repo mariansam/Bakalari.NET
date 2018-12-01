@@ -73,5 +73,26 @@ namespace Bakalari
 
             return homework;
         }
+
+        public async Task<UserInfo> GetUserInfo()
+        {
+            string xmlstring = await Helper.GetDataAsync($"https://{Domain}/login.aspx?hx={Token}&pm=login");
+            XmlDocument xml = new XmlDocument();
+            xml.LoadXml(xmlstring);
+
+            XmlNode node = xml.ChildNodes[1];
+
+            return new UserInfo
+            (
+                node["verze"].InnerText,
+                node["jmeno"].InnerText,
+                UserInfo.ParseUserType(node["typ"].InnerText),
+                node["skola"].InnerText,
+                node["typskoly"].InnerText,
+                node["trida"].InnerText,
+                node["rocnik"].InnerText,
+                node["moduly"].InnerText.Split("*".ToCharArray(), StringSplitOptions.RemoveEmptyEntries)
+            );
+        }
     }
 }
