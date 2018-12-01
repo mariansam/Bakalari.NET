@@ -9,7 +9,7 @@ namespace Bakalari
 {
     static class TokenGenerator
     {
-        public static async Task<string> CreateHash(string domain, string user, string password)
+        public static async Task<string> CreateToken(string domain, string user, string password)
         {
             string res = await Helper.GetDataAsync($"https://{domain}/login.aspx?gethx={user}");
             XmlDocument xml = new XmlDocument();

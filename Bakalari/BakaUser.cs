@@ -10,18 +10,18 @@ namespace Bakalari
     {
         public BakaUser(string domain, string user, string password)
         {
-            Hash = TokenGenerator.CreateHash(domain, user, password).Result;
+            Token = TokenGenerator.CreateToken(domain, user, password).Result;
             Domain = domain;
             User = user;
         }
 
-        public string Hash { get; private set; }
+        public string Token { get; private set; }
         public string Domain { get; private set; }
         public string User { get; private set; }
 
         public async Task<Event[]> GetEvents()
         {
-            string xmlstring = await Helper.GetDataAsync($"https://{Domain}/login.aspx?hx={Hash}&pm=akce");
+            string xmlstring = await Helper.GetDataAsync($"https://{Domain}/login.aspx?hx={Token}&pm=akce");
             XmlDocument xml = new XmlDocument();
             xml.LoadXml(xmlstring);
 
@@ -44,6 +44,34 @@ namespace Bakalari
             }
 
             return events;
+        }
+
+        public async Task<Homework[]> GetHomework()
+        {
+            string xmlstring = await Helper.GetDataAsync($"https://{Domain}/login.aspx?hx={Token}&pm=ukoly");
+            XmlDocument xml = new XmlDocument();
+            xml.LoadXml(xmlstring);
+
+            Homework[] homework = new Homework[xml.ChildNodes[1].ChildNodes[0].ChildNodes.Count];
+
+            for (int i = 0; i < homework.Length; i++)
+            {
+                XmlNode node = xml.ChildNodes[1].ChildNodes[0].ChildNodes[i];
+
+                homework[i] = new Homework
+                (
+                    node["predmet"].InnerText,
+                    node["zkratka"].InnerText,
+                    DateTime.ParseExact(node["zadano"].InnerText.Substring(0, 6), "yyMMdd", CultureInfo.InvariantCulture),
+                    DateTime.ParseExact(node["nakdy"].InnerText.Substring(0, 6), "yyMMdd", CultureInfo.InvariantCulture),
+                    node["popis"].InnerText,
+                    Homework.ParseHomeworkStatus(node["status"].InnerText),
+                    Homework.ParseHomeworkType(node["typ"].InnerText),
+                    node["id"].InnerText
+                );
+            }
+
+            return homework;
         }
     }
 }
