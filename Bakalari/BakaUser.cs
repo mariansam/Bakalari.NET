@@ -19,6 +19,8 @@ namespace Bakalari
         public string Domain { get; private set; }
         public string User { get; private set; }
 
+        public override string ToString() => User;
+
         public async Task<Event[]> GetEvents()
         {
             string xmlstring = await Helper.GetDataAsync($"https://{Domain}/login.aspx?hx={Token}&pm=akce");
@@ -93,6 +95,31 @@ namespace Bakalari
                 node["rocnik"].InnerText,
                 node["moduly"].InnerText.Split("*".ToCharArray(), StringSplitOptions.RemoveEmptyEntries)
             );
+        }
+
+        public async Task<Subject[]> GetSubjects()
+        {
+            string xmlstring = await Helper.GetDataAsync($"https://{Domain}/login.aspx?hx={Token}&pm=predmety");
+            XmlDocument xml = new XmlDocument();
+            xml.LoadXml(xmlstring);
+
+            Subject[] subjects = new Subject[xml.ChildNodes[1].ChildNodes[0].ChildNodes.Count];
+
+            for (int i = 0; i < subjects.Length; i++)
+            {
+                XmlNode node = xml.ChildNodes[1].ChildNodes[0].ChildNodes[i];
+
+                subjects[i] = new Subject
+                (
+                    node["nazev"].InnerText,
+                    node["zkratka"].InnerText,
+                    node["kod_pred"].InnerText,
+                    node["ucitel"].InnerText,
+                    node["zkratkauc"].InnerText
+                );
+            }
+
+            return subjects;
         }
     }
 }
