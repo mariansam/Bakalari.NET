@@ -126,7 +126,28 @@ namespace Bakalari
         {
             subjectCode = subjectCode.Replace(' ', '+');
 
-            
+            string xmlstring = await Helper.GetDataAsync($"https://{Domain}/login.aspx?hx={Token}&pm=vyuka&pmd={subjectCode}");
+            XmlDocument xml = new XmlDocument();
+            xml.LoadXml(xmlstring);
+
+            SubjectTuition[] tuitions = new SubjectTuition[xml.ChildNodes[1].ChildNodes[0].ChildNodes.Count];
+
+            for (int i = 0; i < tuitions.Length; i++)
+            {
+                XmlNode node = xml.ChildNodes[1].ChildNodes[0].ChildNodes[i];
+
+                tuitions[i] = new SubjectTuition()
+                {
+                    Index = int.Parse(node["poradi"].InnerText),
+                    Date = DateTime.ParseExact(node["datum"].InnerText, "yyyyMMdd", CultureInfo.InvariantCulture),
+                    Lesson = int.Parse(node["hodina"].InnerText),
+                    LessonNumber = int.Parse(node["cislo_hod"].InnerText),
+                    Topic = node["tema"].InnerText,
+                    Note = node["poznamka"].InnerText
+                };
+            }
+
+            return tuitions;
         }
     }
 }
