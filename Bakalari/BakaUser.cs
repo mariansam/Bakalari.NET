@@ -32,17 +32,17 @@ namespace Bakalari
             for (int i = 0; i < events.Length; i++)
             {
                 XmlNode node = xml.ChildNodes[1].ChildNodes[0].ChildNodes[i];
-                events[i] = new Event
-                (
-                    node["nazev"].InnerText,
-                    DateTime.ParseExact(node["datum"].InnerText, "yyyyMMdd", CultureInfo.InvariantCulture),
-                    node["cas"].InnerText,
-                    node["popis"].InnerText,
-                    node["zobrazit"].InnerText == "1",
-                    node["proucitele"].InnerText.Split(", ".ToCharArray(), StringSplitOptions.RemoveEmptyEntries),
-                    node["protridy"].InnerText.Split(", ".ToCharArray(), StringSplitOptions.RemoveEmptyEntries),
-                    node["promistnosti"].InnerText.Split(", ".ToCharArray(), StringSplitOptions.RemoveEmptyEntries)
-                );
+                events[i] = new Event()
+                {
+                    Name = node["nazev"].InnerText,
+                    Date = DateTime.ParseExact(node["datum"].InnerText, "yyyyMMdd", CultureInfo.InvariantCulture),
+                    Time = node["cas"].InnerText,
+                    Description = node["popis"].InnerText,
+                    Visible = node["zobrazit"].InnerText == "1",
+                    Teachers = node["proucitele"].InnerText.Split(", ".ToCharArray(), StringSplitOptions.RemoveEmptyEntries),
+                    Classes = node["protridy"].InnerText.Split(", ".ToCharArray(), StringSplitOptions.RemoveEmptyEntries),
+                    Rooms = node["promistnosti"].InnerText.Split(", ".ToCharArray(), StringSplitOptions.RemoveEmptyEntries)
+                };
             }
 
             return events;
@@ -60,17 +60,17 @@ namespace Bakalari
             {
                 XmlNode node = xml.ChildNodes[1].ChildNodes[0].ChildNodes[i];
 
-                homework[i] = new Homework
-                (
-                    node["predmet"].InnerText,
-                    node["zkratka"].InnerText,
-                    DateTime.ParseExact(node["zadano"].InnerText.Substring(0, 6), "yyMMdd", CultureInfo.InvariantCulture),
-                    DateTime.ParseExact(node["nakdy"].InnerText.Substring(0, 6), "yyMMdd", CultureInfo.InvariantCulture),
-                    node["popis"].InnerText,
-                    Homework.ParseHomeworkStatus(node["status"].InnerText),
-                    Homework.ParseHomeworkType(node["typ"].InnerText),
-                    node["id"].InnerText
-                );
+                homework[i] = new Homework()
+                {
+                    Subject = node["predmet"].InnerText,
+                    SubjectShortcut = node["zkratka"].InnerText,
+                    Assigned = DateTime.ParseExact(node["zadano"].InnerText.Substring(0, 6), "yyMMdd", CultureInfo.InvariantCulture),
+                    ToWhen = DateTime.ParseExact(node["nakdy"].InnerText.Substring(0, 6), "yyMMdd", CultureInfo.InvariantCulture),
+                    Description = node["popis"].InnerText,
+                    Status = Homework.ParseHomeworkStatus(node["status"].InnerText),
+                    Type = Homework.ParseHomeworkType(node["typ"].InnerText),
+                    Id = node["id"].InnerText
+                };
             }
 
             return homework;
@@ -84,17 +84,17 @@ namespace Bakalari
 
             XmlNode node = xml.ChildNodes[1];
 
-            return new UserInfo
-            (
-                node["verze"].InnerText,
-                node["jmeno"].InnerText,
-                UserInfo.ParseUserType(node["typ"].InnerText),
-                node["skola"].InnerText,
-                node["typskoly"].InnerText,
-                node["trida"].InnerText,
-                node["rocnik"].InnerText,
-                node["moduly"].InnerText.Split("*".ToCharArray(), StringSplitOptions.RemoveEmptyEntries)
-            );
+            return new UserInfo()
+            {
+                Version = node["verze"].InnerText,
+                Name = node["jmeno"].InnerText,
+                Type = UserInfo.ParseUserType(node["typ"].InnerText),
+                School = node["skola"].InnerText,
+                SchoolType = node["typskoly"].InnerText,
+                Class = node["trida"].InnerText,
+                Grade = node["rocnik"].InnerText,
+                Modules = node["moduly"].InnerText.Split("*".ToCharArray(), StringSplitOptions.RemoveEmptyEntries)
+            };
         }
 
         public async Task<Subject[]> GetSubjects()
@@ -109,17 +109,24 @@ namespace Bakalari
             {
                 XmlNode node = xml.ChildNodes[1].ChildNodes[0].ChildNodes[i];
 
-                subjects[i] = new Subject
-                (
-                    node["nazev"].InnerText,
-                    node["zkratka"].InnerText,
-                    node["kod_pred"].InnerText,
-                    node["ucitel"].InnerText,
-                    node["zkratkauc"].InnerText
-                );
+                subjects[i] = new Subject()
+                {
+                    Name = node["nazev"].InnerText,
+                    Shortcut = node["zkratka"].InnerText,
+                    Code = node["kod_pred"].InnerText,
+                    Teacher = node["ucitel"].InnerText,
+                    TeacherShortcut = node["zkratkauc"].InnerText
+                };
             }
 
             return subjects;
+        }
+
+        public async Task<SubjectTuition[]> GetTuition(string subjectCode)
+        {
+            subjectCode = subjectCode.Replace(' ', '+');
+
+            
         }
     }
 }
